@@ -1,5 +1,5 @@
 mod config;
 
 fn main() {
-    println!("hello world!");
+    println!("{:?}", config::read_config().unwrap());
 }

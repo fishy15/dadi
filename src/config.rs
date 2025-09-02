@@ -1,23 +1,34 @@
 use serde::{Serialize, Deserialize};
-use std::ffi::OsString;
+use std::fmt::Debug;
 use std::fs::File;
 use std::io::BufReader;
+use std::path::Path;
 
-#[derive(Serialize, Deserialize)]
-struct Config {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
     root_path: String,
+    sections: Vec<SectionConfig>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SectionConfig {
+    title: String,
+
+    #[serde(default)]
+    persist: bool,
 }
 
 #[derive(Debug)]
-enum ConfigError {
+pub enum ConfigError {
     FileNotFound,
     InvalidFormat,
 }
 
 static CONFIG_PATH: &str = "~/.config/dadi/config.yml";
 
-fn read_config() -> Result<Config, ConfigError> {
-    let config_file_path = OsString::from(CONFIG_PATH);
+pub fn read_config() -> Result<Config, ConfigError> {
+    let expanded_path = shellexpand::tilde(CONFIG_PATH);
+    let config_file_path = Path::new(expanded_path.as_ref());
     let config_file = File::open(config_file_path)
         .map_err(|_| ConfigError::FileNotFound)?;
     let reader = BufReader::new(config_file);
@@ -33,8 +44,24 @@ mod test {
     #[test]
     fn working_config_deserialization() {
         let config = r#"
-root_path: ~/sample/path/to/directory/"#;
+root_path: ~/sample/path/to/directory/
+sections:
+  - title: section 1
+  - title: section 2
+    persist: true
+  - title: section 3
+    persist: false"#;
 
-        serde_yml::from_str::<Config>(config).unwrap();
+        let config = serde_yml::from_str::<Config>(config).unwrap();
+        assert_eq!("~/sample/path/to/directory/", config.root_path);
+
+        assert_eq!("section 1", config.sections[0].title);
+        assert_eq!(false, config.sections[0].persist);
+
+        assert_eq!("section 2", config.sections[1].title);
+        assert_eq!(true, config.sections[1].persist);
+
+        assert_eq!("section 3", config.sections[2].title);
+        assert_eq!(false, config.sections[2].persist);
     }
 }
