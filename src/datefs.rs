@@ -68,7 +68,8 @@ macro_rules! assert_ok_eq {
     };
 }
 
-mod tests {
+#[cfg(test)]
+mod test {
     use super::*;
 
     static BASE_PATH: &str = "./test-dirs/";
