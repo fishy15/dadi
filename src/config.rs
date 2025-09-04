@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::BufReader;
@@ -29,12 +29,10 @@ static CONFIG_PATH: &str = "~/.config/dadi/config.yml";
 pub fn read_config() -> Result<Config, ConfigError> {
     let expanded_path = shellexpand::tilde(CONFIG_PATH);
     let config_file_path = Path::new(expanded_path.as_ref());
-    let config_file = File::open(config_file_path)
-        .map_err(|_| ConfigError::FileNotFound)?;
+    let config_file = File::open(config_file_path).map_err(|_| ConfigError::FileNotFound)?;
     let reader = BufReader::new(config_file);
 
-    serde_yml::from_reader(reader)
-        .map_err(|_| ConfigError::InvalidFormat)
+    serde_yml::from_reader(reader).map_err(|_| ConfigError::InvalidFormat)
 }
 
 #[cfg(test)]
