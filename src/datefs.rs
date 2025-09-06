@@ -75,7 +75,7 @@ mod test {
 
     #[test]
     fn test_previous() {
-        let base_path = Path::new(BASE_PATH).join("test1");
+        let base_path = Path::new(BASE_PATH).join("test_previous");
 
         assert_ok_eq!(None, previous_before(&base_path, date(2017, 1, 1)));
         assert_ok_eq!(None, previous_before(&base_path, date(2018, 1, 1)));
@@ -98,14 +98,16 @@ mod test {
 
     #[test]
     fn test_missing_md() {
-        let base_path = Path::new(BASE_PATH).join("test2");
-
-        fn date(year: i32, month: u8, date: u8) -> Date {
-            let month_enum = Month::January.nth_next(month - 1);
-            return Date::from_calendar_date(year, month_enum, date).unwrap();
-        }
-
+        let base_path = Path::new(BASE_PATH).join("test_missing_md");
         assert!(previous_before(&base_path, date(2018, 3, 20)).is_err());
         assert!(previous_before(&base_path, date(2019, 3, 20)).is_err());
     }
+
+    #[test]
+    fn test_invalid_format() {
+        let base_path = Path::new(BASE_PATH).join("test_invalid_format");
+        println!("{:?}", previous_before(&base_path, date(2038, 3, 20)));
+        assert!(previous_before(&base_path, date(2038, 3, 20)).is_err());
+    }
+
 }
