@@ -2,8 +2,8 @@ use std::fs;
 
 use std::ffi::{OsStr, OsString};
 use std::io::Error;
-use std::path::Path;
-use time::{Date, Month};
+use std::path::{Path, PathBuf};
+use time::Date;
 
 #[derive(Debug)]
 pub enum DateFSError {
@@ -17,7 +17,7 @@ pub enum DateFSError {
 // The previous date that occurs before the current one in the file system.
 // Also does checks to make sure that all files are valid.
 // Returns None if there was no previous date
-fn previous_before(base_path: &Path, bound: Date) -> Result<Option<Date>, DateFSError> {
+pub fn previous_before(base_path: &Path, bound: Date) -> Result<Option<Date>, DateFSError> {
     let paths = fs::read_dir(base_path).map_err(|_| DateFSError::BaseMissing)?;
     let file_dates = paths
         .map(|p|
@@ -45,17 +45,16 @@ fn extract_date(path: &Path) -> Result<Date, DateFSError> {
     return Err(err);
 }
 
-pub fn date_exists(base_path: &Path, year: i32, month: u32, date: u32) -> bool {
-    let mut path_buf = base_path.to_path_buf();
-    path_buf.push(year.to_string());
-    path_buf.push(month.to_string());
-    path_buf.push(date.to_string());
-    return path_buf.exists();
+pub fn construct_path(base_path: &Path, date: Date) -> PathBuf {
+    let format = time::format_description::well_known::Iso8601::DATE;
+    let file_name = format!("{}.md", date.format(&format).unwrap());
+    return base_path.join(file_name);
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use time::Month;
 
     macro_rules! assert_ok_eq {
         ($left:expr, $right:expr) => {
@@ -97,6 +96,28 @@ mod test {
     }
 
     #[test]
+    fn test_exists() {
+        let base_path = Path::new(BASE_PATH).join("test_previous");
+
+        fn date_exists(base_path: &Path, date: Date) -> bool {
+            return construct_path(base_path, date).exists();
+        }
+
+        assert!(!date_exists(&base_path, date(2018, 3, 28)));
+        assert!(date_exists(&base_path, date(2018, 3, 29)));
+        assert!(!date_exists(&base_path, date(2018, 3, 30)));
+
+        assert!(!date_exists(&base_path, date(2018, 4, 28)));
+        assert!(date_exists(&base_path, date(2018, 4, 29)));
+        assert!(date_exists(&base_path, date(2018, 4, 30)));
+        assert!(!date_exists(&base_path, date(2018, 5, 1)));
+
+        assert!(!date_exists(&base_path, date(2018, 12, 31)));
+        assert!(date_exists(&base_path, date(2019, 1, 1)));
+        assert!(!date_exists(&base_path, date(2019, 1, 2)));
+    }
+
+    #[test]
     fn test_missing_md() {
         let base_path = Path::new(BASE_PATH).join("test_missing_md");
         assert!(previous_before(&base_path, date(2018, 3, 20)).is_err());
@@ -109,5 +130,4 @@ mod test {
         println!("{:?}", previous_before(&base_path, date(2038, 3, 20)));
         assert!(previous_before(&base_path, date(2038, 3, 20)).is_err());
     }
-
 }
