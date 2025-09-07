@@ -63,6 +63,9 @@ fn parse_template(path: &Path) -> Result<FileRepr, DateFSError> {
     let mut cur_section_contents = String::from("");
     for line in contents.split("\n") {
         if line.starts_with("## ") {
+            // keep part afterwards
+            let line = &line[3..];
+
             // store the old section
             if let Some(section) = cur_section {
                 sections.insert(String::from(section), cur_section_contents);
@@ -75,6 +78,11 @@ fn parse_template(path: &Path) -> Result<FileRepr, DateFSError> {
             }
             cur_section_contents.push_str(line);
         }
+    }
+
+    // last section has not been added yet
+    if let Some(section) = cur_section {
+        sections.insert(String::from(section), cur_section_contents);
     }
 
     return Ok(sections);
