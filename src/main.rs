@@ -30,5 +30,7 @@ fn main() {
     Command::new(editor)
         .args([today_file])
         .spawn()
-        .expect("failed to call editor");
+        .expect("failed to start editor")
+        .wait()
+        .expect("editor returned with non-zero status");
 }
