@@ -2,7 +2,7 @@ use crate::config::Config;
 use crate::datefs::{DateFSError, construct_path, format_date, previous_before};
 use std::collections::HashMap;
 use std::fs::{File, read_to_string};
-use std::io::Write;
+use std::io::{ErrorKind, Write};
 use std::path::Path;
 use time::Date;
 
@@ -21,8 +21,18 @@ pub fn write_template(config: &Config, date: Date) -> Result<(), DateFSError> {
         };
 
     let note_file = construct_path(base_path, date);
-    let mut f = File::create_new(&note_file)
-        .map_err(|_| DateFSError::InvalidFile(note_file.into_os_string()))?;
+
+    let mut f = match File::create_new(&note_file) {
+        Ok(f) => f,
+        Err(e) => {
+            if e.kind() == ErrorKind::AlreadyExists {
+                return Ok(());
+            } else {
+                return Err(DateFSError::InvalidFile(note_file.into()));
+            }
+        }
+    };
+
     let title = format!("# {}\n\n", format_date(date));
     f.write_all(title.as_bytes())
         .map_err(|e| DateFSError::OSError(e))?;
