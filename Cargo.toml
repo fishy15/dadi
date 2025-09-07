@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-time = { version = "0.3.43", features = ["formatting", "parsing"] }
+chrono = "0.4.41"
 serde = "1.0"
 serde_yml = "0.0.11"
 shellexpand = "3.1.1"
+time = { version = "0.3.43", features = ["formatting", "parsing"] }

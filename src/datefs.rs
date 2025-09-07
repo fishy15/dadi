@@ -14,6 +14,11 @@ pub enum DateFSError {
     OSError(Error),
 }
 
+pub fn format_date(date: Date) -> String {
+    let format = time::format_description::well_known::Iso8601::DATE;
+    return date.format(&format).unwrap();
+}
+
 // The previous date that occurs before the current one in the file system.
 // Also does checks to make sure that all files are valid.
 // Returns None if there was no previous date
@@ -46,8 +51,7 @@ fn extract_date(path: &Path) -> Result<Date, DateFSError> {
 }
 
 pub fn construct_path(base_path: &Path, date: Date) -> PathBuf {
-    let format = time::format_description::well_known::Iso8601::DATE;
-    let file_name = format!("{}.md", date.format(&format).unwrap());
+    let file_name = format!("{}.md", format_date(date));
     return base_path.join(file_name);
 }
 

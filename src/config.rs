@@ -6,16 +6,16 @@ use std::path::Path;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    root_path: String,
-    sections: Vec<SectionConfig>,
+    pub root_path: String,
+    pub sections: Vec<SectionConfig>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SectionConfig {
-    title: String,
+    pub title: String,
 
     #[serde(default)]
-    persist: bool,
+    pub persist: bool,
 }
 
 #[derive(Debug)]
