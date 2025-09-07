@@ -11,14 +11,13 @@ type FileRepr = HashMap<String, String>;
 
 pub fn write_template(config: &Config, date: Date) -> Result<(), DateFSError> {
     let base_path = Path::new(&config.root_path);
-    let old_data =
-        match previous_before(base_path, date)? {
-            Some(old_date) => {
-                let old_path = construct_path(base_path, old_date);
-                Some(parse_template(old_path.as_path())?)
-            },
-            None => None,
-        };
+    let old_data = match previous_before(base_path, date)? {
+        Some(old_date) => {
+            let old_path = construct_path(base_path, old_date);
+            Some(parse_template(old_path.as_path())?)
+        }
+        None => None,
+    };
 
     let note_file = construct_path(base_path, date);
 
@@ -42,15 +41,14 @@ pub fn write_template(config: &Config, date: Date) -> Result<(), DateFSError> {
         f.write_all(section_title.as_bytes())
             .map_err(|e| DateFSError::OSError(e))?;
 
-        let section_body = 
-            if section.persist {
-                match old_data {
-                    Some(ref fr) => retrieve_section(&fr, &section.title),
-                    None => "\n",
-                }
-            } else {
-                "\n"
-            };
+        let section_body = if section.persist {
+            match old_data {
+                Some(ref fr) => retrieve_section(&fr, &section.title),
+                None => "\n",
+            }
+        } else {
+            "\n"
+        };
 
         f.write_all(section_body.as_bytes())
             .map_err(|e| DateFSError::OSError(e))?;

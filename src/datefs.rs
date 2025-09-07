@@ -25,12 +25,11 @@ pub fn format_date(date: Date) -> String {
 pub fn previous_before(base_path: &Path, bound: Date) -> Result<Option<Date>, DateFSError> {
     let paths = fs::read_dir(base_path).map_err(|_| DateFSError::BaseMissing)?;
     let file_dates = paths
-        .map(|p|
-            match p {
-                Ok(path) => Ok(extract_date(path.path().as_path())?),
-                Err(e) => Err(DateFSError::OSError(e)),
-            })
-            .collect::<Result<Vec<Date>, DateFSError>>()?;
+        .map(|p| match p {
+            Ok(path) => Ok(extract_date(path.path().as_path())?),
+            Err(e) => Err(DateFSError::OSError(e)),
+        })
+        .collect::<Result<Vec<Date>, DateFSError>>()?;
 
     let max_date = file_dates.into_iter().filter(|d| *d < bound).max();
     return Ok(max_date);
@@ -84,19 +83,58 @@ mod test {
         assert_ok_eq!(None, previous_before(&base_path, date(2018, 1, 1)));
         assert_ok_eq!(None, previous_before(&base_path, date(2018, 3, 28)));
         assert_ok_eq!(None, previous_before(&base_path, date(2018, 3, 29)));
-        assert_ok_eq!(Some(date(2018, 3, 29)), previous_before(&base_path, date(2018, 3, 30)));
-        assert_ok_eq!(Some(date(2018, 3, 29)), previous_before(&base_path, date(2018, 4, 1)));
-        assert_ok_eq!(Some(date(2018, 3, 29)), previous_before(&base_path, date(2018, 4, 28)));
-        assert_ok_eq!(Some(date(2018, 3, 29)), previous_before(&base_path, date(2018, 4, 29)));
-        assert_ok_eq!(Some(date(2018, 4, 29)), previous_before(&base_path, date(2018, 4, 30)));
-        assert_ok_eq!(Some(date(2018, 4, 30)), previous_before(&base_path, date(2018, 5, 1)));
-        assert_ok_eq!(Some(date(2018, 4, 30)), previous_before(&base_path, date(2018, 5, 2)));
-        assert_ok_eq!(Some(date(2018, 4, 30)), previous_before(&base_path, date(2018, 6, 2)));
-        assert_ok_eq!(Some(date(2018, 4, 30)), previous_before(&base_path, date(2018, 12, 31)));
-        assert_ok_eq!(Some(date(2018, 4, 30)), previous_before(&base_path, date(2019, 1, 1)));
-        assert_ok_eq!(Some(date(2019, 1, 1)),  previous_before(&base_path, date(2019, 1, 2)));
-        assert_ok_eq!(Some(date(2019, 1, 1)),  previous_before(&base_path, date(2019, 1, 3)));
-        assert_ok_eq!(Some(date(2019, 1, 1)),  previous_before(&base_path, date(3019, 1, 3)));
+        assert_ok_eq!(
+            Some(date(2018, 3, 29)),
+            previous_before(&base_path, date(2018, 3, 30))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 3, 29)),
+            previous_before(&base_path, date(2018, 4, 1))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 3, 29)),
+            previous_before(&base_path, date(2018, 4, 28))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 3, 29)),
+            previous_before(&base_path, date(2018, 4, 29))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 4, 29)),
+            previous_before(&base_path, date(2018, 4, 30))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 4, 30)),
+            previous_before(&base_path, date(2018, 5, 1))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 4, 30)),
+            previous_before(&base_path, date(2018, 5, 2))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 4, 30)),
+            previous_before(&base_path, date(2018, 6, 2))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 4, 30)),
+            previous_before(&base_path, date(2018, 12, 31))
+        );
+        assert_ok_eq!(
+            Some(date(2018, 4, 30)),
+            previous_before(&base_path, date(2019, 1, 1))
+        );
+        assert_ok_eq!(
+            Some(date(2019, 1, 1)),
+            previous_before(&base_path, date(2019, 1, 2))
+        );
+        assert_ok_eq!(
+            Some(date(2019, 1, 1)),
+            previous_before(&base_path, date(2019, 1, 3))
+        );
+        assert_ok_eq!(
+            Some(date(2019, 1, 1)),
+            previous_before(&base_path, date(3019, 1, 3))
+        );
     }
 
     #[test]

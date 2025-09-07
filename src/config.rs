@@ -32,8 +32,8 @@ pub fn read_config() -> Result<Config, ConfigError> {
     let config_file = File::open(config_file_path).map_err(|_| ConfigError::FileNotFound)?;
     let reader = BufReader::new(config_file);
 
-    let mut config: Config = serde_yml::from_reader(reader)
-        .map_err(|_| ConfigError::InvalidFormat)?;
+    let mut config: Config =
+        serde_yml::from_reader(reader).map_err(|_| ConfigError::InvalidFormat)?;
     config.root_path = shellexpand::tilde(&config.root_path).into_owned();
     return Ok(config);
 }

@@ -2,7 +2,7 @@ mod config;
 mod datefs;
 mod template;
 
-use chrono::{Local, Datelike};
+use chrono::{Datelike, Local};
 use config::read_config;
 use datefs::construct_path;
 use std::env;
