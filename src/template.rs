@@ -32,14 +32,18 @@ pub fn write_template(config: &Config, date: Date) -> Result<(), DateFSError> {
         f.write_all(section_title.as_bytes())
             .map_err(|e| DateFSError::OSError(e))?;
 
-        if section.persist {
-            let old_section_data = match old_data {
-                Some(ref fr) => retrieve_section(&fr, &section.title),
-                None => "\n",
+        let section_body = 
+            if section.persist {
+                match old_data {
+                    Some(ref fr) => retrieve_section(&fr, &section.title),
+                    None => "\n",
+                }
+            } else {
+                "\n"
             };
-            f.write_all(old_section_data.as_bytes())
-                .map_err(|e| DateFSError::OSError(e))?;
-        }
+
+        f.write_all(section_body.as_bytes())
+            .map_err(|e| DateFSError::OSError(e))?;
     }
 
     return Ok(());
