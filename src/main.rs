@@ -8,12 +8,16 @@ use datefs::construct_path;
 use std::env;
 use std::path::Path;
 use std::process::Command;
+use std::time::Duration;
 use template::write_template;
 use time::{Date, Month};
 
 fn main() {
+    let config = read_config().unwrap();
+
     let now = Local::now();
-    let date = now.date_naive();
+    let hour_shift =  Duration::from_secs((config.reset_hours_after_midnight * 60 * 60).into());
+    let date = (now - hour_shift).date_naive();
 
     let year = date.year();
     let month = Month::January.nth_next(date.month0() as u8);
@@ -21,7 +25,6 @@ fn main() {
 
     let date = Date::from_calendar_date(year, month, day).unwrap();
 
-    let config = read_config().unwrap();
     write_template(&config, date).unwrap();
 
     let today_file = construct_path(Path::new(&config.root_path), date);
