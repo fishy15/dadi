@@ -81,10 +81,8 @@ fn parse_template(path: &Path) -> Result<FileRepr, DateFSError> {
             cur_section = Some(line);
             cur_section_contents = String::from("");
         } else if cur_section != None {
-            if !cur_section_contents.is_empty() {
-                cur_section_contents.push_str("\n");
-            }
             cur_section_contents.push_str(line);
+            cur_section_contents.push_str("\n");
         }
     }
 
