@@ -8,6 +8,9 @@ use std::path::Path;
 pub struct Config {
     pub root_path: String,
     pub sections: Vec<SectionConfig>,
+
+    #[serde(default)]
+    pub reset_hours_after_midnight: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -64,5 +67,7 @@ sections:
 
         assert_eq!("section 3", config.sections[2].title);
         assert_eq!(false, config.sections[2].persist);
+
+        assert_eq!(0, config.reset_hours_after_midnight);
     }
 }
