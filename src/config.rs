@@ -19,6 +19,9 @@ pub struct SectionConfig {
 
     #[serde(default)]
     pub persist: bool,
+
+    #[serde(default)]
+    pub collate: bool,
 }
 
 #[derive(Debug)]
@@ -53,20 +56,25 @@ sections:
   - title: section 1
   - title: section 2
     persist: true
+    collate: false
   - title: section 3
-    persist: false"#;
+    persist: false
+    collate: true"#;
 
         let config = serde_yml::from_str::<Config>(config).unwrap();
         assert_eq!("~/sample/path/to/directory/", config.root_path);
 
         assert_eq!("section 1", config.sections[0].title);
         assert_eq!(false, config.sections[0].persist);
+        assert_eq!(false, config.sections[0].collate);
 
         assert_eq!("section 2", config.sections[1].title);
         assert_eq!(true, config.sections[1].persist);
+        assert_eq!(false, config.sections[1].collate);
 
         assert_eq!("section 3", config.sections[2].title);
         assert_eq!(false, config.sections[2].persist);
+        assert_eq!(true, config.sections[2].collate);
 
         assert_eq!(0, config.reset_hours_after_midnight);
     }
