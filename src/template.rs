@@ -57,6 +57,16 @@ pub fn write_template(config: &Config, date: Date) -> Result<(), DateFSError> {
     return Ok(());
 }
 
+pub fn parse_day(config: &Config, date: Date) -> Result<Option<FileRepr>, DateFSError> {
+    let base_path = Path::new(&config.root_path);
+    let note_file = construct_path(base_path, date);
+    match parse_template(&note_file) {
+        Ok(fr) => Ok(Some(fr)),
+        Err(DateFSError::InvalidFile(_)) => Ok(None),
+        Err(e) => Err(e),
+    }
+}
+
 fn retrieve_section<'a, 'b>(fr: &'a FileRepr, title: &'b str) -> &'a str {
     let data = fr.get(title).map(|s| s.as_str());
     return data.unwrap_or("\n");
